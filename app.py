@@ -2,6 +2,8 @@ from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from retrieval.recommender import recommend
+import os
+import uvicorn
 
 app = FastAPI(title="SHL Assessment Recommendation API")
 
@@ -58,3 +60,7 @@ def recommend_get(query: str):
         "query": query,
         "recommendations": results
     }
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

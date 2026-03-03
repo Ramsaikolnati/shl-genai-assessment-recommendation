@@ -3,6 +3,5 @@ __pycache__/
 *.pyc
 *.pkl
 *.index
-*.npy
 .env
 .DS_Store
