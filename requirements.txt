@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-multipart
+sentence-transformers
+faiss-cpu
+pandas
+numpy
+selenium
+webdriver-manager
+openpyxl
+scikit-learn
