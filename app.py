@@ -1,11 +1,21 @@
+import os
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from retrieval.recommender import recommend
-import os
 import uvicorn
 
 app = FastAPI(title="SHL Assessment Recommendation API")
+
+model_loaded = False
+recommend_fn = None
+
+
+def load_model():
+    global model_loaded, recommend_fn
+    if not model_loaded:
+        from retrieval.recommender import recommend
+        recommend_fn = recommend
+        model_loaded = True
 
 
 class QueryRequest(BaseModel):
@@ -33,7 +43,8 @@ def home():
 
 @app.post("/recommend_form", response_class=HTMLResponse)
 def recommend_form(query: str = Form(...)):
-    results = recommend(query, top_k=10)
+    load_model()
+    results = recommend_fn(query, top_k=10)
 
     html = "<h2>Recommendations</h2><ul>"
 
@@ -47,20 +58,24 @@ def recommend_form(query: str = Form(...)):
 
 @app.post("/recommend")
 def get_recommendations(request: QueryRequest):
-    results = recommend(request.query, top_k=10)
+    load_model()
+    results = recommend_fn(request.query, top_k=10)
     return {
         "query": request.query,
         "recommendations": results
     }
 
+
 @app.get("/recommend")
 def recommend_get(query: str):
-    results = recommend(query, top_k=10)
+    load_model()
+    results = recommend_fn(query, top_k=10)
     return {
         "query": query,
         "recommendations": results
     }
 
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
